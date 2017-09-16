@@ -15,7 +15,7 @@ namespace Memberships.Controllers
 
         public ActionResult About()
         {
-            ViewBag.Message = "Your application description page by  ss.";
+            ViewBag.Message = "Your application description page by ganesha.";
 
             return View();
         }
