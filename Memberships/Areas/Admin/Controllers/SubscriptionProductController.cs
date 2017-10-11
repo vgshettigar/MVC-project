@@ -117,6 +117,25 @@ namespace Memberships.Areas.Admin.Controllers
             return RedirectToAction("Index");
         }
 
+        private async Task<SubscriptionProduct> GetSubscriptionProduct(int? subscriptionId, int? ProductId)
+        {
+            try
+            {
+                int SubscId = 0, prodId = 0;
+                int.TryParse(subscriptionId.ToString(), out SubscId);
+                int.TryParse(ProductId.ToString(), out prodId);
+
+                var subscriptionProduct = await db.SubscriptionProducts.FirstOrDefaultAsync(
+                    sp => sp.ProductId.Equals(prodId) && sp.SubscriptionId.Equals(SubscId));
+                return subscriptionProduct;
+            }
+            catch
+            {
+                return null;
+            }
+
+        }
+
         protected override void Dispose(bool disposing)
         {
             if (disposing)
