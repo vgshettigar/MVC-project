@@ -25,18 +25,20 @@ namespace Memberships.Areas.Admin.Controllers
         }
 
         // GET: Admin/ProductItem/Details/5
-        public async Task<ActionResult> Details(int? id)
+        public async Task<ActionResult> Details(int? ItemId, int? ProductId)
         {
-            if (id == null)
+            if (ItemId == null || ProductId == null)
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            ProductItem productItem = await db.ProductItems.FindAsync(id);
+            // ProductItem productItem = await db.ProductItems.FindAsync(id);
+            ProductItem productItem = await GetProductItem(ItemId, ProductId);
             if (productItem == null)
             {
                 return HttpNotFound();
             }
-            return View(productItem);
+            
+            return View(await productItem.Convert(db));
         }
 
         // GET: Admin/ProductItem/Create
@@ -69,18 +71,18 @@ namespace Memberships.Areas.Admin.Controllers
         }
 
         // GET: Admin/ProductItem/Edit/5
-        public async Task<ActionResult> Edit(int? id)
+        public async Task<ActionResult> Edit(int? ItemId, int? ProductId)
         {
-            if (id == null)
+            if (ItemId == null || ProductId == null)
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            ProductItem productItem = await db.ProductItems.FindAsync(id);
+            ProductItem productItem = await GetProductItem(ItemId, ProductId);
             if (productItem == null)
             {
                 return HttpNotFound();
             }
-            return View(productItem.Convert(db));
+            return View(await productItem.Convert(db));
         }
 
         // POST: Admin/ProductItem/Edit/5
@@ -88,41 +90,65 @@ namespace Memberships.Areas.Admin.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Edit([Bind(Include = "ProductId,ItemId")] ProductItem productItem)
+        public async Task<ActionResult> Edit(
+            [Bind(Include = "ProductId,ItemId,OldProductId,OldItemId")]
+            ProductItem productItem)
         {
             if (ModelState.IsValid)
             {
-                db.Entry(productItem).State = EntityState.Modified;
-                await db.SaveChangesAsync();
+                var CanChange = await productItem.CanChange(db);
+                if (CanChange)
+                    await productItem.Change(db);
                 return RedirectToAction("Index");
             }
             return View(productItem);
         }
 
         // GET: Admin/ProductItem/Delete/5
-        public async Task<ActionResult> Delete(int? id)
+        public async Task<ActionResult> Delete(int? ItemId, int? ProductId)
         {
-            if (id == null)
+            if (ItemId == null || ProductId == null)
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-            ProductItem productItem = await db.ProductItems.FindAsync(id);
+            // ProductItem productItem = await db.ProductItems.FindAsync(id);
+            ProductItem productItem = await GetProductItem(ItemId, ProductId);
             if (productItem == null)
             {
                 return HttpNotFound();
             }
-            return View(productItem);
+
+            return View(await productItem.Convert(db));
         }
 
         // POST: Admin/ProductItem/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> DeleteConfirmed(int id)
+        public async Task<ActionResult> DeleteConfirmed(int? ItemId, int? ProductId)
         {
-            ProductItem productItem = await db.ProductItems.FindAsync(id);
+            ProductItem productItem = await GetProductItem(ItemId, ProductId) ;
             db.ProductItems.Remove(productItem);
             await db.SaveChangesAsync();
             return RedirectToAction("Index");
+        }
+
+        private async Task<ProductItem>GetProductItem(int? ItemId, int? ProductId)
+        {
+            try
+            {
+                int itmId = 0, prodId = 0;
+                int.TryParse(ItemId.ToString(), out itmId);
+                int.TryParse(ProductId.ToString(), out prodId);
+
+                var productItem = await db.ProductItems.FirstOrDefaultAsync(
+                    pi => pi.ProductId.Equals(prodId) && pi.ItemId.Equals(itmId));
+                return productItem;
+            }
+            catch
+            {
+                return null;
+            }
+
         }
 
         protected override void Dispose(bool disposing)
