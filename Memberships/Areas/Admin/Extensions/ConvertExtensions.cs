@@ -154,7 +154,7 @@ namespace Memberships.Areas.Admin.Extensions
                               SubscriptionId = pi.SubscriptionId,
                               ProductId = pi.ProductId,
 
-                              SubscriptionTitle = db.Items.FirstOrDefault(i => i.Id.Equals(pi.SubscriptionId)).Title,
+                              SubscriptionTitle = db.Subscriptions.FirstOrDefault(sp => sp.Id.Equals(pi.SubscriptionId)).Title,
                               ProductTitle = db.Products.FirstOrDefault(i => i.Id.Equals(pi.ProductId)).Title
                           }).ToListAsync();
         }
