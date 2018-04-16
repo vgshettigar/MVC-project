@@ -1,0 +1,25 @@
+﻿body{
+    font-family: 'Open Sans', sans-serif;
+}
+.navbar{
+    border-bottom:1px solid #c8c8c8;
+    background-color:#FFF;
+}
+.nav a{
+    color:grey;
+}
+.nav a:hover{
+    color:forestgreen;
+}
+.nav >li >a:hover{
+   background-color:white;
+}
+.navbar-nav >li >a {
+   margin-top:25px;
+   padding-top:5px;
+   max-height:30px;
+}
+
+.body-content{
+margin-top:40px;
+}
